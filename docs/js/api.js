@@ -4,40 +4,24 @@
  */
 
 const API = {
-    // Backend URLs
-    LOCAL_URL: 'http://localhost:5001',
-    CLOUD_URL: 'https://PSC03.pythonanywhere.com',
+    // Backend URL (cloudflare tunnel - works on all devices)
+    BACKEND_URL: 'https://easier-port-sharon-earliest.trycloudflare.com',
     _activeUrl: null,
 
-    // Auto-detect: try local first, fall back to cloud
+    // Get backend URL
     async _getBaseUrl() {
         if (this._activeUrl) return this._activeUrl;
         
-        // Try local first (best for Gemini)
         try {
-            const res = await fetch(`${this.LOCAL_URL}/api/health`, { signal: AbortSignal.timeout(1000) });
+            const res = await fetch(`${this.BACKEND_URL}/api/health`, { signal: AbortSignal.timeout(3000) });
             if (res.ok) { 
-                this._activeUrl = this.LOCAL_URL; 
-                console.log('🟢 Using LOCAL backend'); 
-                return this.LOCAL_URL; 
+                this._activeUrl = this.BACKEND_URL; 
+                console.log('🟢 Using backend:', this.BACKEND_URL); 
+                return this.BACKEND_URL; 
             }
         } catch (e) {
-            // Local not available
+            console.log('❌ Backend not available:', e.message);
         }
-        
-        // Try cloud
-        try {
-            const res = await fetch(`${this.CLOUD_URL}/api/health`, { signal: AbortSignal.timeout(2000) });
-            if (res.ok) { 
-                this._activeUrl = this.CLOUD_URL; 
-                console.log('☁️ Using CLOUD backend'); 
-                return this.CLOUD_URL; 
-            }
-        } catch (e) {
-            // Cloud not available
-        }
-
-        console.log('❌ No backend available');
         return null;
     },
 
