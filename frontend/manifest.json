@@ -9,11 +9,11 @@
     "orientation": "portrait",
     "categories": ["agriculture", "utilities", "education"],
     "icons": [
-        { "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCBmaWxsPSIjMWE1ZTFmIiB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjMyIi8+PHRleHQgeD0iOTYiIHk9IjEzMCIgZm9udC1zaXplPSIxMDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiPvCfjII8L3RleHQ+PC9zdmc+", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any maskable" },
-        { "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCBmaWxsPSIjMWE1ZTFmIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjY0Ii8+PHRleHQgeD0iMjU2IiB5PSIzNTAiIGZvbnQtc2l6ZT0iMjgwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn4yCPC90ZXh0Pjwvc3ZnPg==", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any maskable" }
+        { "src": "/kisaanmitra/assets/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any maskable" },
+        { "src": "/kisaanmitra/assets/icons/icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any maskable" }
     ],
     "shortcuts": [
-        { "name": "Ask Question", "url": "/?feature=ask", "icons": [{ "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5NiA5NiI+PGNpcmNsZSBmaWxsPSIjMWE1ZTFmIiBjeD0iNDgiIGN5PSI0OCIgcj0iNDgiLz48dGV4dCB4PSI0OCIgeT0iNjUiIGZvbnQtc2l6ZT0iNDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiPvCfjrM8L3RleHQ+PC9zdmc+", "sizes": "96x96", "type": "image/svg+xml" }] },
-        { "name": "Market Prices", "url": "/?feature=prices", "icons": [{ "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5NiA5NiI+PGNpcmNsZSBmaWxsPSIjMWE1ZTFmIiBjeD0iNDgiIGN5PSI0OCIgcj0iNDgiLz48dGV4dCB4PSI0OCIgeT0iNjUiIGZvbnQtc2l6ZT0iNDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiPvCfkrA8L3RleHQ+PC9zdmc+", "sizes": "96x96", "type": "image/svg+xml" }] }
+        { "name": "Ask Question", "url": "/kisaanmitra/?feature=ask", "icons": [{ "src": "/kisaanmitra/assets/icons/shortcut-ask.svg", "sizes": "96x96", "type": "image/svg+xml" }] },
+        { "name": "Market Prices", "url": "/kisaanmitra/?feature=prices", "icons": [{ "src": "/kisaanmitra/assets/icons/shortcut-prices.svg", "sizes": "96x96", "type": "image/svg+xml" }] }
     ]
 }
