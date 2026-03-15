@@ -445,10 +445,20 @@ function addQueryBubble(text) {
 function addResponseCard(data) {
     const card = document.createElement('div');
     card.className = 'response-card animate-in';
+    
+    // Ensure steps exist - provide fallback if missing or empty
+    let steps = data.steps;
+    if (!steps || !Array.isArray(steps) || steps.length === 0 || (steps.length === 1 && steps[0] === 'Take care')) {
+        // Provide default Hindi steps based on language
+        steps = window.currentLanguage === 'hi' 
+            ? ['पौधों की देखभाल करें', 'समय पर सिंचाई करें', 'उर्वरक का उपयोग करें']
+            : ['Take care of plants', 'Irrigate regularly', 'Use fertilizer'];
+    }
+    
     let stepsHTML = '';
-    if (data.steps && data.steps.length > 0) {
+    if (steps && steps.length > 0) {
         stepsHTML = `<p><strong>${t('steps_title')}</strong></p>
-            <ul class="steps-list">${data.steps.map(s => `<li>${s}</li>`).join('')}</ul>`;
+            <ul class="steps-list">${steps.map(s => `<li>${s}</li>`).join('')}</ul>`;
     }
     const safeText = (data.text || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
     card.innerHTML = `
