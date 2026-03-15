@@ -28,17 +28,17 @@ def get_cloudflare_response(query: str, language: str, history: list = None) -> 
                 context += f"{msg['role'].capitalize()}: {msg['content']}\n"
             context += "\n"
         
-        prompt = f"""You are KisaanMitra, an agricultural assistant for Indian farmers.
+        prompt = f"""You are KisaanMitra, an agricultural expert for Indian farmers.
 
 {context}
 IMPORTANT: Respond in {lang_name} language ONLY.
 
 Farmer asks: {query}
 
-Give 3 specific farming steps in JSON format:
-{{"text": "...", "type": "general", "crop": "", "steps": ["step1", "step2", "step3"], "emoji": "🌾"}}
+Give a detailed answer (2-3 sentences) followed by 3 action steps in JSON format:
+{{"text": "detailed answer here", "type": "general", "crop": "", "steps": ["step1", "step2", "step3"], "emoji": "🌾"}}
 
-Be direct, no filler. Under 80 words."""
+Make the answer helpful and detailed. Don't be too short."""
 
         url = f"https://api.cloudflare.com/client/v4/accounts/{Config.CLOUDFLARE_ACCOUNT_ID}/ai/run/@cf/meta/llama-3.1-8b-instruct"
         
