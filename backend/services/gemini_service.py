@@ -20,13 +20,15 @@ def get_agricultural_advice(query: str, language: str = 'hi') -> dict:
     try:
         lang_name = Config.LANGUAGES.get(language, {}).get('name', 'Hindi')
         prompt = f"""
-	Please respond in {lang_name} language ONLY.
-	A farmer is asking the following question in {lang_name}:
+	CRITICAL: You MUST respond in {lang_name} language ONLY.
+	If '{lang_name}' is 'English', your entire JSON output (including the "text" and "steps" fields) MUST be in English.
+    If '{lang_name}' is 'Hindi', your entire JSON output MUST be in Hindi.
+    
+	A farmer is asking this question:
 	"{query}"
 
-	Please respond in {lang_name} language only.
-	Provide practical farming advice.
-	Remember to format your response as the JSON structure specified.
+	Remember to format your response ONLY as the JSON structure specified in your system instructions.
+	DO NOT output anything other than JSON.
 	"""
 
         response = model.generate_content(prompt)
