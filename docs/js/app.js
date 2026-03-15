@@ -446,9 +446,19 @@ function addResponseCard(data) {
     const card = document.createElement('div');
     card.className = 'response-card animate-in';
     
-    // Ensure steps exist - provide fallback if missing or empty
+    // Ensure steps exist and are valid - provide fallback if missing, empty, or incomplete
     let steps = data.steps;
-    if (!steps || !Array.isArray(steps) || steps.length === 0 || (steps.length === 1 && steps[0] === 'Take care')) {
+    let hasValidSteps = false;
+    
+    if (steps && Array.isArray(steps) && steps.length >= 1) {
+        // Check if steps are valid (not empty, not "Take care", have some length)
+        const validSteps = steps.filter(s => s && s.length > 3);
+        if (validSteps.length >= 1) {
+            hasValidSteps = true;
+        }
+    }
+    
+    if (!hasValidSteps) {
         // Provide default Hindi steps based on language
         steps = window.currentLanguage === 'hi' 
             ? ['पौधों की देखभाल करें', 'समय पर सिंचाई करें', 'उर्वरक का उपयोग करें']
