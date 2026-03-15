@@ -449,29 +449,33 @@ function addResponseCard(data) {
     // Clean text - remove JSON remnants and fix issues
     let rawText = data.text || '';
     
-    // Remove JSON object from text (everything from { to })
-    rawText = rawText.replace(/\{[\s\S]*\}/g, '');
+    // Remove JSON object from text (everything from { to } including nested)
+    rawText = rawText.replace(/\{[^{}]*\}/g, '');
+    rawText = rawText.replace(/\{[\s\S]*?\}/g, '');
     
-    // Remove colons and extra symbols
-    rawText = rawText.replace(/:/g, '').replace(/"/g, '').replace(/,/g, '');
+    // Remove colons, quotes, commas, and other JSON artifacts
+    rawText = rawText.replace(/:/g, ' ');
+    rawText = rawText.replace(/"/g, '');
+    rawText = rawText.replace(/,/g, ' ');
+    rawText = rawText.replace(/\{/g, '');
+    rawText = rawText.replace(/\}/g, '');
     
-    // Clean up extra spaces
-    rawText = rawText.trim();
+    // Clean up extra spaces and newlines
+    rawText = rawText.replace(/\s+/g, ' ').trim();
     
-    // Ensure steps exist and are valid - provide fallback if missing, empty, or incomplete
+    // Ensure steps exist and are valid
     let steps = data.steps;
     let hasValidSteps = false;
     
     if (steps && Array.isArray(steps) && steps.length >= 1) {
-        // Check if steps are valid (not empty, not "Take care", have some length)
-        const validSteps = steps.filter(s => s && s.length > 3);
+        // Check if steps are valid - must have substantial content
+        const validSteps = steps.filter(s => s && s.length > 10 && !s.includes('Take care'));
         if (validSteps.length >= 1) {
             hasValidSteps = true;
         }
     }
     
     if (!hasValidSteps) {
-        // Provide default Hindi steps based on language
         steps = window.currentLanguage === 'hi' 
             ? ['पौधों की देखभाल करें', 'समय पर सिंचाई करें', 'उर्वरक का उपयोग करें']
             : ['Take care of plants', 'Irrigate regularly', 'Use fertilizer'];
@@ -482,7 +486,7 @@ function addResponseCard(data) {
         stepsHTML = `<p><strong>${t('steps_title')}</strong></p>
             <ul class="steps-list">${steps.map(s => `<li>${s}</li>`).join('')}</ul>`;
     }
-    const safeText = rawText.replace(/'/g, "\\'").replace(/"/g, '\\"');
+    const safeText = rawText.replace(/'/g, "\\'");
     card.innerHTML = `
         <div class="response-emoji">${data.emoji || ''}</div>
         <div class="response-text">${rawText}</div>
