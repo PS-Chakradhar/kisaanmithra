@@ -446,6 +446,18 @@ function addResponseCard(data) {
     const card = document.createElement('div');
     card.className = 'response-card animate-in';
     
+    // Clean text - remove JSON remnants and fix issues
+    let rawText = data.text || '';
+    
+    // Remove JSON object from text (everything from { to })
+    rawText = rawText.replace(/\{[\s\S]*\}/g, '');
+    
+    // Remove colons and extra symbols
+    rawText = rawText.replace(/:/g, '').replace(/"/g, '').replace(/,/g, '');
+    
+    // Clean up extra spaces
+    rawText = rawText.trim();
+    
     // Ensure steps exist and are valid - provide fallback if missing, empty, or incomplete
     let steps = data.steps;
     let hasValidSteps = false;
@@ -470,10 +482,10 @@ function addResponseCard(data) {
         stepsHTML = `<p><strong>${t('steps_title')}</strong></p>
             <ul class="steps-list">${steps.map(s => `<li>${s}</li>`).join('')}</ul>`;
     }
-    const safeText = (data.text || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+    const safeText = rawText.replace(/'/g, "\\'").replace(/"/g, '\\"');
     card.innerHTML = `
         <div class="response-emoji">${data.emoji || ''}</div>
-        <div class="response-text">${data.text}</div>
+        <div class="response-text">${rawText}</div>
         ${data.type !== 'general' && data.type !== 'error' ? `<span class="response-type">${data.type}</span>` : ''}
         ${stepsHTML}
         <button class="speak-btn" onclick="SpeechEngine.speak('${safeText}', '${currentSpeechCode}')">${t('speak_again')}</button>`;
