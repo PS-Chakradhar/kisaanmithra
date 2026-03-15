@@ -446,33 +446,45 @@ function addResponseCard(data) {
     const card = document.createElement('div');
     card.className = 'response-card animate-in';
     
-    // Clean text - remove JSON remnants and fix issues
-    let rawText = data.text || '';
+    // Extract clean text - check if response is JSON string
+    let rawText = '';
+    let cleanSteps = [];
     
-    // Remove JSON object from text (everything from { to } including nested)
-    rawText = rawText.replace(/\{[^{}]*\}/g, '');
-    rawText = rawText.replace(/\{[\s\S]*?\}/g, '');
+    // Check if data.text contains JSON - try to parse it
+    if (data.text && typeof data.text === 'string') {
+        // Try to find JSON in the text
+        const jsonMatch = data.text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            try {
+                const parsed = JSON.parse(jsonMatch[0]);
+                rawText = parsed.text || '';
+                cleanSteps = parsed.steps || [];
+            } catch(e) {
+                // If parsing fails, clean manually
+                rawText = data.text;
+            }
+        } else {
+            rawText = data.text;
+        }
+    } else {
+        rawText = data.text || '';
+    }
     
-    // Remove colons, quotes, commas, and other JSON artifacts
-    rawText = rawText.replace(/:/g, ' ');
-    rawText = rawText.replace(/"/g, '');
-    rawText = rawText.replace(/,/g, ' ');
-    rawText = rawText.replace(/\{/g, '');
-    rawText = rawText.replace(/\}/g, '');
-    
-    // Clean up extra spaces and newlines
+    // Clean the text - remove any remaining JSON artifacts
+    rawText = rawText.replace(/\{/g, '').replace(/\}/g, '');
+    rawText = rawText.replace(/"[^"]*":/g, '');
+    rawText = rawText.replace(/text/g, '').replace(/type/g, '').replace(/crop/g, '').replace(/steps/g, '').replace(/emoji/g, '');
+    rawText = rawText.replace(/:/g, ' ').replace(/,/g, ' ');
     rawText = rawText.replace(/\s+/g, ' ').trim();
     
-    // Ensure steps exist and are valid
-    let steps = data.steps;
-    let hasValidSteps = false;
+    // Get steps - prefer parsed steps, fallback to data.steps
+    let steps = cleanSteps.length > 0 ? cleanSteps : (data.steps || []);
     
+    // Validate steps - must be substantial
+    let hasValidSteps = false;
     if (steps && Array.isArray(steps) && steps.length >= 1) {
-        // Check if steps are valid - must have substantial content
-        const validSteps = steps.filter(s => s && s.length > 10 && !s.includes('Take care'));
-        if (validSteps.length >= 1) {
-            hasValidSteps = true;
-        }
+        const validSteps = steps.filter(s => s && typeof s === 'string' && s.length > 10 && !s.toLowerCase().includes('take care'));
+        if (validSteps.length >= 1) hasValidSteps = true;
     }
     
     if (!hasValidSteps) {
@@ -486,6 +498,7 @@ function addResponseCard(data) {
         stepsHTML = `<p><strong>${t('steps_title')}</strong></p>
             <ul class="steps-list">${steps.map(s => `<li>${s}</li>`).join('')}</ul>`;
     }
+    
     const safeText = rawText.replace(/'/g, "\\'");
     card.innerHTML = `
         <div class="response-emoji">${data.emoji || ''}</div>
