@@ -56,19 +56,24 @@ Be direct, no filler. Under 80 words."""
             result = response.json()
             ai_text = result.get('result', {}).get('response', '').strip()
             
-            # Parse JSON from response
-            try:
-                parsed = json.loads(ai_text)
-                return parsed
-            except:
-                # Return as text if not JSON
-                return {
-                    'text': ai_text[:500],
-                    'type': 'general',
-                    'crop': '',
-                    'steps': [],
-                    'emoji': '🌾'
-                }
+            # Try to find and parse JSON in the response
+            import re
+            json_match = re.search(r'\{[^{}]*\}', ai_text, re.DOTALL)
+            if json_match:
+                try:
+                    parsed = json.loads(json_match.group())
+                    return parsed
+                except:
+                    pass
+            
+            # Return as text if not JSON
+            return {
+                'text': ai_text[:500],
+                'type': 'general',
+                'crop': '',
+                'steps': [],
+                'emoji': '🌾'
+            }
         return None
     except Exception as e:
         print(f"Cloudflare Error: {e}")
