@@ -15,6 +15,11 @@ class Config:
     # API Keys
     GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
     WEATHER_API_KEY = os.getenv('WEATHER_API_KEY', '')
+    
+    # Cloudflare Workers AI (Free, Unlimited)
+    CLOUDFLARE_ACCOUNT_ID = os.getenv('CLOUDFLARE_ACCOUNT_ID', '')
+    CLOUDFLARE_API_TOKEN = os.getenv('CLOUDFLARE_API_TOKEN', '')
+    USE_CLOUDFLARE_AI = bool(CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN)
 
     # Ollama Settings (Primary AI - Unlimited & Offline Capable)
     OLLAMA_BASE_URL = os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')

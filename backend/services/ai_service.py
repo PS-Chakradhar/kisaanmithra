@@ -1,5 +1,5 @@
 """
-KisaanMitra - AI Service (Ollama + Gemini Fallback)
+KisaanMitra - AI Service (Ollama + Cloudflare AI + Gemini)
 Unlimited, offline-capable AI for agricultural advice.
 """
 
@@ -7,6 +7,72 @@ import json
 import requests
 from config import Config
 import google.generativeai as genai
+
+
+def get_cloudflare_response(query: str, language: str, history: list = None) -> dict:
+    """Get response from Cloudflare Workers AI (Free, Unlimited)."""
+    if not Config.USE_CLOUDFLARE_AI:
+        return None
+    
+    if history is None:
+        history = []
+    
+    try:
+        lang_name = Config.LANGUAGES.get(language, {}).get('name', 'Hindi')
+        
+        # Build conversation context
+        context = ""
+        if history:
+            context = "\n\nPrevious conversation:\n"
+            for msg in history[-4:]:
+                context += f"{msg['role'].capitalize()}: {msg['content']}\n"
+            context += "\n"
+        
+        prompt = f"""You are KisaanMitra, an agricultural assistant for Indian farmers.
+
+{context}
+IMPORTANT: Respond in {lang_name} language ONLY.
+
+Farmer asks: {query}
+
+Give 3 specific farming steps in JSON format:
+{{"text": "...", "type": "general", "crop": "", "steps": ["step1", "step2", "step3"], "emoji": "🌾"}}
+
+Be direct, no filler. Under 80 words."""
+
+        url = f"https://api.cloudflare.com/client/v4/accounts/{Config.CLOUDFLARE_ACCOUNT_ID}/ai/run/@cf/meta/llama-3.1-8b-instruct"
+        
+        response = requests.post(
+            url,
+            headers={
+                "Authorization": f"Bearer {Config.CLOUDFLARE_API_TOKEN}",
+                "Content-Type": "application/json"
+            },
+            json={"prompt": prompt},
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            ai_text = result.get('result', {}).get('response', '').strip()
+            
+            # Parse JSON from response
+            try:
+                parsed = json.loads(ai_text)
+                return parsed
+            except:
+                # Return as text if not JSON
+                return {
+                    'text': ai_text[:500],
+                    'type': 'general',
+                    'crop': '',
+                    'steps': [],
+                    'emoji': '🌾'
+                }
+        return None
+    except Exception as e:
+        print(f"Cloudflare Error: {e}")
+        return None
 
 # Configure Gemini if API key available
 if Config.GEMINI_API_KEY:
@@ -313,6 +379,17 @@ def get_agricultural_advice(query: str, language: str = 'hi', history: list = No
                 'data': ensure_fields(result),
                 'language': language,  # Return original requested language
                 'provider': 'ollama'
+            }
+    
+    # Fallback to Cloudflare AI (Free, Unlimited)
+    if Config.USE_CLOUDFLARE_AI:
+        result = get_cloudflare_response(query, language, history)
+        if result:
+            return {
+                'success': True,
+                'data': ensure_fields(result),
+                'language': language,
+                'provider': 'cloudflare'
             }
     
     # Fallback to Gemini if available
