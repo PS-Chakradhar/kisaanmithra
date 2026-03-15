@@ -57,34 +57,36 @@ Output ONLY valid JSON (no other text):
             result = response.json()
             ai_text = result.get('result', {}).get('response', '').strip()
             
-            # Try to extract JSON - look for {...} pattern
+            # Try to extract JSON
             import re
             
-            # Find JSON object - match from { to } including nested content
-            # Look for the entire JSON object
-            json_match = re.search(r'(\{[^{}]*"text"[^{}]*"steps"[^{}]*\})', ai_text, re.DOTALL)
-            if json_match:
-                try:
-                    parsed = json.loads(json_match.group(1))
-                    return parsed
-                except Exception as e:
-                    print(f"JSON parse error: {e}")
-            
-            # Fallback: try to find any JSON
+            # Find the complete JSON object at the end or in the text
+            # Match from { to } 
             json_match = re.search(r'\{.+\}', ai_text, re.DOTALL)
             if json_match:
                 try:
                     parsed = json.loads(json_match.group())
-                    return parsed
-                except:
-                    pass
+                    # Verify it has required fields
+                    if 'text' in parsed and 'steps' in parsed:
+                        return parsed
+                    # If partial, construct proper response
+                    if 'text' in parsed:
+                        return {
+                            'text': parsed.get('text', ai_text[:500]),
+                            'type': parsed.get('type', 'general'),
+                            'crop': parsed.get('crop', ''),
+                            'steps': parsed.get('steps', ['देखभाल करें', 'सिंचाई करें', 'खाद दें']),
+                            'emoji': parsed.get('emoji', '🌾')
+                        }
+                except Exception as e:
+                    print(f"JSON parse error: {e}")
             
-            # Return as text if no JSON found
+            # Return as structured text if no JSON found
             return {
                 'text': ai_text[:500],
                 'type': 'general',
                 'crop': '',
-                'steps': [],
+                'steps': ['देखभाल करें', 'सिंचाई करें', 'खाद दें'],
                 'emoji': '🌾'
             }
         return None
